@@ -1,0 +1,21 @@
+
+
+<!-- Notice the item.id in the "menu_item=item.id" in the form action parameter.  "item" parameter
+ is the Menu object that was forwarded from the editMenuItem function from the calling program.
+ The "item" object contains all properties of a menu (item.price, item.name, item.description, etc).
+ in order to get the menu id we need to parse it from item.id 
+    
+-->
+
+<html>
+<body>
+<form action= "{{url_for('editMenuItem', restaurant_id = restaurant_id, menu_id=item.id)}}" method = 'POST'>
+
+<p>Name:</p>
+<input type = 'text' size='30' name = 'name' placeholder = '{{item.name}}'>
+
+<input type='submit' value='Edit'>
+</form>
+<a href= '{{url_for('restaurantMenu', restaurant_id= restaurant_id)}}'>Cancel</a>
+</body>
+</html>
