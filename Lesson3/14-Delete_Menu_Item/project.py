@@ -31,7 +31,7 @@ def restaurantMenu(restaurant_id):
     except:
         pass
 
-# Task 1: Create route for newMenuItem function here
+
 @app.route('/restaurants/<int:restaurant_id>/new/', methods=['GET', 'POST'])
 def newMenuItem(restaurant_id):
     if request.method == 'POST':
@@ -52,7 +52,6 @@ def newMenuItem(restaurant_id):
         # the GET method will just render the newmenuitem template
         return render_template('newmenuitem.html', restaurant_id=restaurant_id)
 
-# Lesson 3 Topic 13 Edit Menu Item Form Quiz (also includes editmenuitem.html)
 
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit',
            methods=['GET', 'POST'])
