@@ -12,7 +12,6 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-# List Restaurant Menus
 @app.route('/')
 @app.route('/restaurants/<int:restaurant_id>/menu')
 def restaurantMenu(restaurant_id):
@@ -22,7 +21,6 @@ def restaurantMenu(restaurant_id):
         'menu.html', restaurant=restaurant, items=items, restaurant_id=restaurant_id)
 
 
-# Add New item (including price and description of new item)
 @app.route('/restaurants/<int:restaurant_id>/new', methods=['GET', 'POST'])
 def newMenuItem(restaurant_id):
 
@@ -37,7 +35,7 @@ def newMenuItem(restaurant_id):
         # the GET method will just render the newmenuitem template
         return render_template('newmenuitem.html', restaurant_id=restaurant_id)
 
-# Edit New item (may change the menu name, price and/or description of selected menu)
+
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit',
            methods=['GET', 'POST'])
 def editMenuItem(restaurant_id, menu_id):
@@ -57,7 +55,7 @@ def editMenuItem(restaurant_id, menu_id):
             'editmenuitem.html', restaurant_id=restaurant_id, item=editedItem)
 
 
-# Delete selected menu item
+# DELETE MENU ITEM SOLUTION
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete',
            methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
