@@ -2,29 +2,14 @@
 
 <html><body>
 
-    <h2>{{restaurant.name}} Menu List</h2>
-    
-    {%with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li><strong>{{message}}</strong></l1>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <h2>{{restaurant_name}} Menu List</h2>
 
-    <!--  
-    <a href='{{url_for('newMenu', restaurant_id = restaurant.id)}}'>Add New Menu Offering</a>
-    -->
-
-    
-    <a href="{{url_for('newMenu', restaurant_id = restaurant.id)}}">Add New Menu</a> 
-    <a href="{{url_for('showRestaurants')}}">Back to Restaurant List</a>
-    
-
+    {% if items %}
     {% for i in items %}
     
+    <a href="{{url_for('newMenu', restaurant_id = restaurant_id)}}">Add New Menu</a>
+    <a href="{{url_for('showRestaurants')}}">Back to Restaurant List</a>
+
     <div>
     
         <!-- 
@@ -33,16 +18,18 @@
         <p>{{i.name}}<br>{{i.price}}<br>{{i.description}}<br>{{i.course}}</p>
 
         <!-- Add link for Edit menu item -->
-        <a href='{{url_for('editMenu', restaurant_id = restaurant.id, menu_id=i.id)}}'>Edit</a></br>
+        <a href='{{url_for('editMenu', restaurant_id = restaurant_id, menu_id=i.id)}}'>Edit</a></br>
         <!-- Add link for Delete menu item -->
-        <a href = '{{url_for('deleteMenu', restaurant_id=restaurant.id, menu_id = i.id)}}'>Delete</a>
+        <a href = '{{url_for('deleteMenu', restaurant_id=restaurant_id, menu_id = i.id)}}'>Delete</a>
     
     </div>
 
     {% endfor %}
-
-   <!-- moved "Home" to top  
-   <br></br><a href = '{{url_for('showRestaurants')}}'>Home</a></br></br>
-   -->
+    {% else %}
+        <p>You currently have no menu items.</p>
+        <a href="{{url_for('newMenu', restaurant_id = restaurant_id)}}">Add New Menu</a>
+        <a href="{{url_for('showRestaurants')}}">Back to Restaurant List</a>
     
+    {% endif %}
+
 </body></html>
