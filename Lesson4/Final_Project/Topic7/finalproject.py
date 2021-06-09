@@ -13,25 +13,6 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-#Fake Restaurants
-# restaurant = {'name': 'The CRUDdy Crab', 'id': '1'}
-# restaurant_id = int(restaurant['id'])
-
-# restaurants = [
-#     {'name': 'The CRUDdy Crab', 'id': '1'}, 
-#     {'name':'Blue Burgers', 'id':'2'},
-#     {'name':'Taco Hut', 'id':'3'}]
-
-#Fake Menu Items
-# items = [ 
-#     {'name':'Cheese Pizza', 'description':'made with fresh cheese', 'price':'$5.99','course' :'Entree', 'id':'1'}, 
-#     {'name':'Chocolate Cake','description':'made with Dutch Chocolate', 'price':'$3.99', 'course':'Dessert','id':'2'},
-#     {'name':'Caesar Salad', 'description':'with fresh organic vegetables','price':'$5.99', 'course':'Entree','id':'3'},
-#     {'name':'Iced Tea', 'description':'with lemon','price':'$.99', 'course':'Beverage','id':'4'},
-#     {'name':'Spinach Dip', 'description':'creamy dip with fresh spinach','price':'$1.99', 'course':'Appetizer','id':'5'} ]
-
-item =  {'name':'Cheese Pizza','description':'made with fresh cheese','price':'$5.99','course' :'Entree'}
-# menu_id = 1
 
 @app.route('/')
 @app.route('/restaurants/')
@@ -43,7 +24,7 @@ def showRestaurants():
 @app.route('/restaurants/new', methods=['GET','POST'])
 def newRestaurant():
     if request.method == 'POST':
-        if request.form['menuName']:
+        if request.form['name']:
             restaurant = Restaurant(name=request.form['name'])
             session.add(restaurant)
             session.commit()
@@ -80,18 +61,21 @@ def deleteRestaurant(restaurant_id):
 @app.route('/restaurants/<int:restaurant_id>/menus')
 def showMenus(restaurant_id):
     restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    restaurant_name = restaurant.name
+    restaurant_id = restaurant.id
     items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
-    # return f'This page returns the list of menus for Restaurant id {restaurant_id}'
-    return render_template('menus.html', items=items, restaurant = restaurant)
+    return render_template('menus.html', items=items, restaurant_name = restaurant_name, restaurant_id = restaurant_id)
 
 @app.route('/restaurants/<int:restaurant_id>/menus/new', methods=['GET','POST'])
 def newMenu(restaurant_id):
-    # return f'This page displays Create Menu page for Restaurant id {restaurant_id}'
     if request.method == 'POST':
+        #  NOTE: New menu will NOT BE CREATED if menu name is left blank.  Also, menu price and
+        #  menu descriptions will be set to default values if not provided.  The menu course
+        # is defaulted to 'Entree' under the NewMenuItem.html template
         if request.form['menuName']:
-            menu = MenuItem(name=request.form['menuName'], price=request.form['price'],
-                            description=request.form['description'], course=request.form['course'],
-                            restaurant_id = restaurant_id)
+            menu = MenuItem(name=request.form['menuName'], price=request.form['price'] or '$0.00',
+                            description=request.form['description'] or 'No info available',
+                            course=request.form['course'], restaurant_id = restaurant_id)
             session.add(menu)
             session.commit()
 
@@ -102,17 +86,26 @@ def newMenu(restaurant_id):
 @app.route('/restaurants/<int:restaurant_id>/menus/<int:menu_id>/edit', methods=['GET','POST'])
 def editMenu(restaurant_id, menu_id):
     item = session.query(MenuItem).filter_by(restaurant_id = restaurant_id, id=menu_id).one()
+    orig_item = item
     if request.method == 'POST':
-        if request.form["menuName"]:
+        post_updates = 0
+        # ONLY do updates if AT LEAST one field is updated (avoid unncessary database updates)
+        if request.form["menuName"] and request.form["menuName"] != orig_item.name:
             item.name = request.form["menuName"]
-        if request.form["price"]:
+            post_updates += 1
+        if request.form["price"] and request.form["price"] != orig_item.price:
             item.price = request.form["price"]
-        if request.form["description"]:
+            post_updates += 1
+        if request.form["description"] and request.form["description"] != orig_item.description:
             item.description = request.form["description"]
-        if request.form["course"]:
+            post_updates += 1
+        if request.form["course"] != orig_item.course:
             item.course = request.form["course"]
-        session.add(item)
-        session.commit()
+            post_updates += 1
+
+        if post_updates:
+            session.add(item)
+            session.commit()
 
         return redirect(url_for('showMenus', restaurant_id=restaurant_id))
     else:
