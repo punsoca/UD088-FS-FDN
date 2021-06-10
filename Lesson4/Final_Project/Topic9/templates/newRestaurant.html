@@ -1,0 +1,34 @@
+  
+<html>
+
+    <header>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles_final.css') }}">
+    </header>
+
+    <body>
+        <div class='pane'>
+        <div class='header'> 
+        <h1> New Restaurant Details </h1>
+        </div>
+        
+        {%with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul>
+            {% for category, message in messages %}
+            <div class="{{ category }}"><strong>{{message}}</strong></div>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+        <form action="{{url_for('newRestaurant')}}" method = 'POST'>
+            <p>New Restaurant Name: </p>
+            
+            <input type='text' size='30' name='name' placeholder="<input required>"></br>
+            <input type='submit' value='Create'>    
+        </form>
+
+        <a href='{{url_for('showRestaurants')}}'>Cancel</a>
+        
+    </body>
+</html>

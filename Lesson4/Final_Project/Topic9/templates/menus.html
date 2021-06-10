@@ -1,0 +1,116 @@
+<!--   This template renders a Restaurant Menu page with menu info (name, price, description) -->
+
+<html>
+    
+    <header>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles_final.css') }}">
+    </header>
+
+    <body>
+
+    <div class='pane'>
+    <div class='header'>
+        <h2>{{restaurant_name}} Menu List</h2>
+    </div>
+
+    {%with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <div class="{{ category }}"><strong>{{message}}</strong></div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    
+    {% if items %}
+
+        <a href="{{url_for('newMenu', restaurant_id = restaurant_id)}}">Add New Menu</a> 
+        <a href="{{url_for('showRestaurants')}}">Back to Restaurant List</a>        
+
+        </br></br>
+        
+        <div>
+            <h2>Appetizers</h2>
+
+            {% for i in items %}
+                {% if i.course == 'Appetizer' %}
+                <!-- 
+                    I made item name, price, description within one <p> tag, with each field separated by </br>
+                -->
+                <p>{{i.name}}<br>{{i.price}}<br>{{i.description}}<br></p>
+
+                <!-- Add link for Edit menu item -->
+                <a href='{{url_for('editMenu', restaurant_id = restaurant_id, menu_id=i.id)}}'>Edit</a></br>
+                <!-- Add link for Delete menu item -->
+                <a href = '{{url_for('deleteMenu', restaurant_id=restaurant_id, menu_id = i.id)}}'>Delete</a>
+                {% endif %}
+            {% endfor %}
+        </div></br></br>
+
+
+        <div>
+            <h2>Entrees</h2>
+
+            {% for i in items %}
+                {% if i.course == 'Entree' %}
+                <!-- 
+                    I made item name, price, description within one <p> tag, with each field separated by </br>
+                -->
+                <p>{{i.name}}<br>{{i.price}}<br>{{i.description}}<br></p>
+
+                <!-- Add link for Edit menu item -->
+                <a href='{{url_for('editMenu', restaurant_id = restaurant_id, menu_id=i.id)}}'>Edit</a></br>
+                <!-- Add link for Delete menu item -->
+                <a href = '{{url_for('deleteMenu', restaurant_id=restaurant_id, menu_id = i.id)}}'>Delete</a>
+                {% endif %}
+            {% endfor %}
+        </div></br></br>
+
+
+        <div>
+            <h2>Desserts</h2>
+
+            {% for i in items %}
+                {% if i.course == 'Dessert' %}
+                <!-- 
+                    I made item name, price, description within one <p> tag, with each field separated by </br>
+                -->
+                <p>{{i.name}}<br>{{i.price}}<br>{{i.description}}<br></p>
+
+                <!-- Add link for Edit menu item -->
+                <a href='{{url_for('editMenu', restaurant_id = restaurant_id, menu_id=i.id)}}'>Edit</a></br>
+                <!-- Add link for Delete menu item -->
+                <a href = '{{url_for('deleteMenu', restaurant_id=restaurant_id, menu_id = i.id)}}'>Delete</a>
+                {% endif %}
+            {% endfor %}
+        </div></br></br>
+
+        <div>
+            <h2>Beverages</h2>
+
+            {% for i in items %}
+                {% if i.course == 'Beverage' %}
+                <!-- 
+                    I made item name, price, description within one <p> tag, with each field separated by </br>
+                -->
+                <p>{{i.name}}<br>{{i.price}}<br>{{i.description}}<br></p>
+
+                <!-- Add link for Edit menu item -->
+                <a href='{{url_for('editMenu', restaurant_id = restaurant_id, menu_id=i.id)}}'>Edit</a></br>
+                <!-- Add link for Delete menu item -->
+                <a href = '{{url_for('deleteMenu', restaurant_id=restaurant_id, menu_id = i.id)}}'>Delete</a>
+                {% endif %}
+            {% endfor %}
+        </div></br></br>
+
+
+
+    {% else %}
+        <p>You currently have no menu items.</p>
+        <a href="{{url_for('newMenu', restaurant_id = restaurant_id)}}">Add New Menu</a> 
+        <a href="{{url_for('showRestaurants')}}">Back to Restaurant List</a>
+    
+    {% endif %} 
+
+</body></html>

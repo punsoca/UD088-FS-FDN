@@ -1,0 +1,33 @@
+  
+<html>
+
+    <header>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles_final.css') }}">
+    </header>
+
+    <body>
+        <div class='pane'>
+        <div class='header'> 
+        <h1> Edit Restaurant Details </h1>
+        </div>
+        
+        {%with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                <div class="{{ category }}"><strong>{{message}}</strong></div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+
+       <form action= "{{url_for('editRestaurant', restaurant_id = restaurant.id)}}" method = 'POST'>  
+            <p>Restaurant Name: </p>
+            
+            <input type='text' size='30' name='rname' placeholder='{{restaurant.name}}'></br>
+            <input type='submit' value='Edit'>    
+        </form>
+
+        <a href='{{url_for('showRestaurants')}}'>Cancel</a>    
+    </body>
+</html>
