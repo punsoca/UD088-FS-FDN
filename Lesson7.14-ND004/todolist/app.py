@@ -19,7 +19,7 @@ class Todo(db.Model):
     completed = db.Column(db.Boolean, nullable=False, default=False)
     # establish foreign key with parent table 'TodoList'
     list_id = db.Column(db.Integer,
-                        db.ForeignKey('todolists.id'),
+                        db.ForeignKey('todolists.id', ondelete="CASCADE"),
                         nullable=False)
 
     def __repr__(self):
@@ -93,6 +93,24 @@ def create_todo():
         return jsonify(body)
 
 
+@app.route('/lists/<list_id>', methods=['DELETE'])
+def set_delete_list(list_id):
+    try:
+        TodoList.query.filter_by(id=list_id).delete()
+        
+        # no need for the line below if "on_delete='CASCADE'" is added inside Todo table's ForeignKey declaration
+        # as deleting the list item will automatically delete the todo items for the list
+        # Todo.query.filter_by(list_id=list_id).delete(synchronize_session='fetch')
+        
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+    return jsonify({'success': True})
+    # return redirect(url_for('index'))
+
+
 @app.route('/todos/<todo_id>', methods=['DELETE'])
 def set_delete_todo(todo_id):
     try:
@@ -106,8 +124,31 @@ def set_delete_todo(todo_id):
     # return redirect(url_for('index'))
 
 
+@app.route('/lists/<list_id>/set-completed', methods=['POST'])
+def set_completed_list(list_id):
+    # set checkboxes of all children todo items to True 
+    # when the checkbox of list item is checked
+
+    list = TodoList.query.get(list_id)
+
+    try:
+        # use synchronized_session('fetch') to update multiple rows in ONE transaction
+        db.session.query(Todo).filter_by(list_id=list_id).update(
+            {'completed': True}, 
+            synchronize_session='fetch'
+        )
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+
+    # redirect to /index
+    return redirect(url_for('index'))
+
+
 @app.route('/todos/<todo_id>/set-completed', methods=['POST'])
-def set_completed_todo(todo_id):
+def set_completed_todo(todo_id): 
     try:
         completed = request.get_json()['completed']
         todo = Todo.query.get(todo_id)

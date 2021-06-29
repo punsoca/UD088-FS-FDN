@@ -10,7 +10,7 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            width: 300px;
+            width: 200px;
         }
         li {
             clear:both;
@@ -30,6 +30,7 @@
         }
     </style>
     <body>
+        <h1>A SAMPLE VERSION OF TODO APP</h1>
         <div id="error" class="hidden">Something went wrong!</div>
 
         <!-- this is for the TodoList section, consisting of:
@@ -38,6 +39,7 @@
              - list of existing TodoList items     
         --> 
         <div class="lists-wrapper">
+            <h4>TODO LISTS</h4>
             <ul id=lists >
                 
                 <form id="todolist_form">
@@ -47,7 +49,13 @@
 
                 {% for list in lists %}
                     <li>
+                        <!-- <a href="/lists/{{ list.id }}">{{ list.name }}</a> -->
+                        <input data-id="{{ list.id }}" class="list-check-completed" type="checkbox" name="list-completed" id="list-completed" 
+                        {% if list.completed %} checked {%endif%} />
                         <a href="/lists/{{ list.id }}">{{ list.name }}</a>
+                   <button class="delete-list" data-id="{{ list.id }}">&Cross;</button>
+
+
                     </li>
                 {% endfor %}
             </ul>
@@ -59,7 +67,7 @@
              - list of existing Todo items associated with the todolists.id     
         -->    
         <div class="todos-wrapper">
-            <h4>{{ active_list.name}} To Do List</h4>
+            <h4>{{ active_list.name}} TO DO ITEMS</h4>
 
             <form action="/todos/create" method="POST" id="todo_form">
                 <input type="text" id="description" name="description"/>
@@ -67,10 +75,10 @@
                 <button>Create Task</button>
             </form>    
 
-            <ul id="todos">
+             <ul id="todos">
                 {% for todo in todos %}
                     <li>
-                         <input data-id="{{ todo.id }}" class="todo-check-completed" type="checkbox" name="completed" id="completed"
+                         <input data-id="{{ todo.id }}" class="todo-check-completed" type="checkbox" 
                              {% if todo.completed %} checked {%endif%} />
                         {{ todo.description }}
                         <button class="delete-todo" data-id="{{ todo.id }}">&Cross;</button>
@@ -80,7 +88,43 @@
         </div>
 
         <script>
-        
+
+            const listChkboxes = document.querySelectorAll('.list-check-completed');
+            for (let i= 0; i < listChkboxes.length; i++) {
+                const listChkbox = listChkboxes[i];
+
+                listChkbox.onchange = function (e) {
+                    // listChxState will track where the target checkbox is checked or not
+                    const listChxState = e.target.checked;
+                    // get the id value from e.target.dataset
+                    const listId = e.target.dataset['id']
+                    fetch('/lists/' + listId + '/set-completed', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            'completed': listChxState
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(function() {
+                        document.getElementById('error').className='hidden';
+
+                        // if the list item checkbox is ticked (checked), then mark the checkboxes
+                        // for the corresponding todo items as "checked" as well
+                        // 
+                        const todoCheckboxes = document.querySelectorAll('.todo-check-completed');
+                        for (let i = 0; i < todoCheckboxes.length; i++) {
+                            const checkbox = todoCheckboxes[i];
+                            checkbox.checked = true;
+                        }
+                    })
+                    .catch(function() {
+                    document.getElementById('error').className='';
+                })
+                }
+            }
+
             const checkboxes = document.querySelectorAll('.todo-check-completed');
             for (let i= 0; i < checkboxes.length; i++) {
                 const checkbox = checkboxes[i];
@@ -97,7 +141,33 @@
                         }
                     })
                     .then(function() {
+                        // hide error, since there are no errors?  
                         document.getElementById('error').className='hidden';
+                    })
+                    .catch(function() {
+                        // display error?
+                        document.getElementById('error').className='';
+                })
+                }
+            }
+
+            const deleteListBtns = document.querySelectorAll('.delete-list');
+            for (let i= 0; i < deleteListBtns.length; i++) {
+                const listBtn = deleteListBtns[i];
+                listBtn.onclick = function (e) {
+                    // console.log('event', e)
+                    const dellistId = e.target.dataset['id']
+                    fetch('/lists/' + dellistId, {
+                        method: 'DELETE'
+                    })
+                    .then(function() {
+                        document.getElementById('error').className='hidden'; // clear error message if present
+                        // window.location.href = "/";
+
+                        const item = e.target.parentElement; // the parent element of the button, which is the li (line item)  
+                        item.remove();   // so when we click on the button, that line item that contains the delete item is removed
+                        window.location.href = "/";  // go back to the main page after processing the delete list 
+                        
                     })
                     .catch(function() {
                     document.getElementById('error').className='';
@@ -116,7 +186,7 @@
                     })
                     .then(function() {
                         document.getElementById('error').className='hidden';
-                        window.location.href = "/";
+                        window.location.reload(true);  // reload the same page
                     })
                     .catch(function() {
                     document.getElementById('error').className='';
